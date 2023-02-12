@@ -14,4 +14,7 @@ start:
 lint:
 		poetry run flake8 page_analyzer
 
-.PHONY: install build dev start lint
+reinstall:
+	        pip install --user --force-reinstall dist/*.whl
+
+.PHONY: install build dev start lint reinstall
