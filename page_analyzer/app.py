@@ -15,4 +15,3 @@ app.secret_key = SECRET_KEY
 def hello_world():
     data = {'url': ''}
     return render_template('index.html', data=data)
-
