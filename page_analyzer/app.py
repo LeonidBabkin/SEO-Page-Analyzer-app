@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import os
 from dotenv import load_dotenv
 
@@ -15,3 +15,9 @@ app.secret_key = SECRET_KEY
 def hello_world():
     data = {'url': ''}
     return render_template('index.html', data=data)
+
+@app.route('/', methods=['POST'])
+def hello_url():
+    datum = request.form.to_dict()
+    url = datum['url']
+    return render_template('page.html', url=url)
