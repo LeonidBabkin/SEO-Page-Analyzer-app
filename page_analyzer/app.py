@@ -16,6 +16,7 @@ def hello_world():
     data = {'url': ''}
     return render_template('index.html', data=data)
 
+
 @app.route('/', methods=['POST'])
 def hello_url():
     datum = request.form.to_dict()
