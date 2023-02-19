@@ -8,9 +8,10 @@ from psycopg2.extras import NamedTupleCursor
 
 
 load_dotenv()
-conn = psycopg2.connect(
-        'postgresql://leonid:babkin36@localhost:5432/page_analyzer')
+DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
+conn = psycopg2.connect(DATABASE_URL)
+
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
