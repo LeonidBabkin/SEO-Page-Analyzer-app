@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
 import os
 from dotenv import load_dotenv
 import psycopg2
@@ -10,7 +10,7 @@ from psycopg2.extras import NamedTupleCursor
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
-conn = psycopg2.connect(DATABASE_URL)
+
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -18,6 +18,7 @@ app.secret_key = SECRET_KEY
 
 #  Open a cursor to perform database operations
 def check_uniqueness(url):
+    conn = psycopg2.connect(DATABASE_URL)
     with conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute(
@@ -25,7 +26,6 @@ def check_uniqueness(url):
                     (url,)
                     )
             return curs.fetchone()
-    conn.close()
 
 
 def url_entry(datum):
@@ -42,18 +42,44 @@ def hello_template():
     return render_template('index.html', data=data)
 
 
-@app.route('/', methods=['POST'])
+@app.route('/urls', methods=['POST'])
 def hello_url():
+    conn = psycopg2.connect(DATABASE_URL)
     datum = request.form.to_dict()
     name, date = url_entry(datum)
-    entry_tuple = check_uniqueness(name)
-    if entry_tuple:
-        pass
+    entry = check_uniqueness(name)
+    print('entry1:', entry)
+    if entry is not None:
+        flash('Страница уже добавлена')
+        return redirect(url_for('get_url', id=entry[0]))
     else:
         with conn:
             with conn.cursor() as curs:
                 curs.execute(
                         "INSERT INTO urls (name, created_at) VALUES (%s, %s)",
                         (name, date))
-        conn.close()  # leaving contexts doesn't close the connection
-    return render_template('page.html', url=entry_tuple[1])
+        entry = check_uniqueness(name)
+        print('entry2:', entry)
+        flash('Страница успешно добавлена')
+        return redirect(url_for('get_url', id=entry[0]))
+
+
+@app.route('/urls/<int:id>')
+def get_url(id):
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute(
+                    "SELECT * FROM urls WHERE id = %s",
+                    (id,)
+                    )
+            entry = curs.fetchone()
+    messages = get_flashed_messages(with_categories=True)
+    conn.close()
+    return render_template(
+            'page_tables.html',
+            id=entry[0],
+            name=entry[1],
+            date=entry[2],
+            messages=messages,
+            )
