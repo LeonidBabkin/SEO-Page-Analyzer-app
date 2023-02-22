@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect,\
+        url_for, flash, get_flashed_messages
 import os
 from dotenv import load_dotenv
 import psycopg2
 from datetime import datetime
 from urllib.parse import urlparse
 from psycopg2.extras import NamedTupleCursor
+from page_analyzer.validation import validate_url
 
 
 load_dotenv()
@@ -19,63 +21,78 @@ app.secret_key = SECRET_KEY
 #  Open a cursor to perform database operations
 def check_uniqueness(url):
     conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute(
-                    "SELECT * FROM urls WHERE name like %s ESCAPE ''",
-                    (url,)
-                    )
-            return curs.fetchone()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)
+    cur.execute(
+            "SELECT * FROM urls WHERE name like %s ESCAPE ''",
+            (url,)
+            )
+    res = cur.fetchone()
+    cur.close()
+    conn.close()
+    return res
 
 
 def url_entry(datum):
     datum = request.form.to_dict()
-    url = urlparse(datum['url'])
-    name = f'{url.scheme}://{url.hostname}'
+    raw_url = urlparse(datum['url'])
+    whole_url = f'{raw_url.scheme}://{raw_url.hostname}'
     date = datetime.now().strftime("%Y-%m-%d")
-    return name, date
+    return whole_url, date
 
 
 @app.route("/")
 def hello_template():
     data = {'url': ''}
-    return render_template('index.html', data=data)
+    messages = get_flashed_messages(with_categories=True)
+    return render_template('index.html', data=data, messages=messages)
 
 
 @app.route('/urls', methods=['POST'])
 def hello_url():
-    conn = psycopg2.connect(DATABASE_URL)
     datum = request.form.to_dict()
+    print(datum['url'])
+    if datum['url'] == '':
+        flash('URL обязателен', 'error')
+        return redirect(url_for('hello_template'))
+
     name, date = url_entry(datum)
+    valid_res = validate_url(name)
+    print(valid_res)
+    if valid_res is not None:
+        flash(valid_res, 'error')
+        return redirect(url_for('hello_template'))
+
     entry = check_uniqueness(name)
-    print('entry1:', entry)
     if entry is not None:
-        flash('Страница уже добавлена')
+        flash('Страница уже существует', 'success')
         return redirect(url_for('get_url', id=entry[0]))
-    else:
-        with conn:
-            with conn.cursor() as curs:
-                curs.execute(
-                        "INSERT INTO urls (name, created_at) VALUES (%s, %s)",
-                        (name, date))
+    if entry is None:
+        conn = psycopg2.connect(DATABASE_URL)
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)
+        cur.execute(
+                "INSERT INTO urls (name, created_at) VALUES (%s, %s)",
+                (name, date)
+                )
+        conn.commit()
+        cur.close()
+        conn.close()
         entry = check_uniqueness(name)
-        print('entry2:', entry)
-        flash('Страница успешно добавлена')
+        flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url', id=entry[0]))
 
 
 @app.route('/urls/<int:id>')
 def get_url(id):
     conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute(
-                    "SELECT * FROM urls WHERE id = %s",
-                    (id,)
-                    )
-            entry = curs.fetchone()
-    messages = get_flashed_messages(with_categories=True)
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)
+    cur.execute(
+            "SELECT * FROM urls WHERE id = %s",
+            (id,)
+            )
+    entry = cur.fetchone()
+    cur.close()
     conn.close()
+    messages = get_flashed_messages(with_categories=True)
     return render_template(
             'page_tables.html',
             id=entry[0],
