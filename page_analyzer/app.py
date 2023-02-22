@@ -1,5 +1,10 @@
-from flask import Flask, render_template, request, redirect,\
-        url_for, flash, get_flashed_messages
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   url_for,
+                   flash,
+                   get_flashed_messages)
 import os
 from dotenv import load_dotenv
 import psycopg2
@@ -21,10 +26,8 @@ app.secret_key = SECRET_KEY
 def check_uniqueness(url):
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute(
-        "SELECT * FROM urls WHERE name like %s ESCAPE ''",
-        (url,)
-    )
+    cur.execute("SELECT * FROM urls WHERE name like %s ESCAPE ''",
+                (url,))
     res = cur.fetchone()
     cur.close()
     conn.close()
@@ -69,10 +72,8 @@ def hello_url():
     if entry is None:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor(cursor_factory=NamedTupleCursor)
-        cur.execute(
-            "INSERT INTO urls (name, created_at) VALUES (%s, %s)",
-            (name, date)
-        )
+        cur.execute("INSERT INTO urls (name, created_at) VALUES (%s, %s)",
+                    (name, date))
         conn.commit()
         cur.close()
         conn.close()
@@ -85,18 +86,13 @@ def hello_url():
 def get_url(id):
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute(
-        "SELECT * FROM urls WHERE id = %s",
-        (id,)
-    )
+    cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
     entry = cur.fetchone()
     cur.close()
     conn.close()
     messages = get_flashed_messages(with_categories=True)
-    return render_template(
-            'page_tables.html',
-            id=entry[0],
-            name=entry[1],
-            date=entry[2],
-            messages=messages,
-            )
+    return render_template('page_tables.html',
+                           id=entry[0],
+                           name=entry[1],
+                           date=entry[2],
+                           messages=messages)
