@@ -22,9 +22,9 @@ def check_uniqueness(url):
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute(
-            "SELECT * FROM urls WHERE name like %s ESCAPE ''",
-            (url,)
-            )
+        "SELECT * FROM urls WHERE name like %s ESCAPE ''",
+        (url,)
+    )
     res = cur.fetchone()
     cur.close()
     conn.close()
@@ -70,9 +70,9 @@ def hello_url():
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor(cursor_factory=NamedTupleCursor)
         cur.execute(
-                "INSERT INTO urls (name, created_at) VALUES (%s, %s)",
-                (name, date)
-                )
+            "INSERT INTO urls (name, created_at) VALUES (%s, %s)",
+            (name, date)
+        )
         conn.commit()
         cur.close()
         conn.close()
@@ -86,9 +86,9 @@ def get_url(id):
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute(
-            "SELECT * FROM urls WHERE id = %s",
-            (id,)
-            )
+        "SELECT * FROM urls WHERE id = %s",
+        (id,)
+    )
     entry = cur.fetchone()
     cur.close()
     conn.close()
