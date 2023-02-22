@@ -18,7 +18,6 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
 
-#  Open a cursor to perform database operations
 def check_uniqueness(url):
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
@@ -50,14 +49,14 @@ def hello_template():
 @app.route('/urls', methods=['POST'])
 def hello_url():
     datum = request.form.to_dict()
-    print(datum['url'])
+
     if datum['url'] == '':
         flash('URL обязателен', 'error')
         return redirect(url_for('hello_template'))
 
     name, date = url_entry(datum)
     valid_res = validate_url(name)
-    print(valid_res)
+
     if valid_res is not None:
         flash(valid_res, 'error')
         return redirect(url_for('hello_template'))
@@ -66,6 +65,7 @@ def hello_url():
     if entry is not None:
         flash('Страница уже существует', 'success')
         return redirect(url_for('get_url', id=entry[0]))
+
     if entry is None:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor(cursor_factory=NamedTupleCursor)
