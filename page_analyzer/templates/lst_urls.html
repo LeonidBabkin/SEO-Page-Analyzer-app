@@ -39,18 +39,17 @@
         <th>Код ответа</th>
       </tr>
       
-        <tr>
-          <td>{{ id }}</td>
+        
+	{% for row in records %}
+	<tr>
           <td>
-            <a href="{{ url_for('get_url', id }}">
-              {{ name }}
-            </a>
-          </td>
-          
-          <td></td>
-          <td></td>
-          
+	    {{ row.id }}
+	  </td>
+	  <td>
+            <a href="{{ url_for('get_url', id=row.id) }}">{{ row.name }}</a>
+	  </td>
         </tr>
+        {% endfor %}
       
     </tbody>
   </table>
