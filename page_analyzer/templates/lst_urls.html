@@ -46,7 +46,7 @@
 	    {{ row.id }}
 	  </td>
 	  <td>
-            <a href="{{ url_for('get_url', id=row.id) }}">{{ row.name }}</a>
+            <a href="{{ url_for('show_url', id=row.id) }}">{{ row.name }}</a>
 	  </td>
         </tr>
         {% endfor %}
