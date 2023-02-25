@@ -48,6 +48,12 @@
 	  <td>
             <a href="{{ url_for('show_url', id=row.id) }}">{{ row.name }}</a>
 	  </td>
+	  <td>
+	    {{ row.last_created }}
+	  </td>
+	  <td>
+	    {{ 200 }}
+	  </td>
         </tr>
         {% endfor %}
       

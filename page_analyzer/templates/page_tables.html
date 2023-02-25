@@ -51,7 +51,7 @@
     </div>
       
        <h2 class="mt-5 mb-3">Проверки</h2>
-       <form method="post" action="/">
+       <form method="post" action="{{ url_for('show_checks', id=id) }}">
        <input type="submit" class="btn btn-primary" value="Запустить проверку">
        </form>
 
@@ -66,6 +66,14 @@
 	 <th>description</th>
          <th>Дата создания</th>
      </tr>
+      <tr>
+	  <td>{{ url_id }}</td>
+	  <td></td>
+	  <td></td>
+	  <td></td>
+	  <td></td>
+          <td>{{ check_creation }}</td>
+      </tr>
        </tbody>
      </table>
    </div>

@@ -49,11 +49,15 @@ def hello_template():
     return render_template('index.html', data=data, messages=messages)
 
 
-@app.route('/urls', methods=['GET'])
-def list_urls():
+@app.route('/urls', methods=['GET'])  # here on the html page there's
+def list_urls():  # a link 'сайты' which leads to the lst_urls.html
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute("SELECT * FROM urls ORDER BY id DESC")
+    cur.execute("SELECT DISTINCT ON (id) * FROM urls LEFT"
+                " JOIN (SELECT url_id, created_at"
+                " AS last_created FROM url_checks ORDER BY id DESC)"
+                " AS checks_table"
+                " ON urls.id = checks_table.url_id ORDER BY id DESC;")
     records = cur.fetchall()
     cur.close()
     conn.close()
@@ -107,3 +111,25 @@ def show_url(id):
                            name=entry[1],
                            date=entry[2],
                            messages=messages)
+
+
+@app.route('/urls/<int:id>/checks', methods=['POST'])
+def show_checks(id):
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)
+    cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
+    top = cur.fetchone()
+    date_check = datetime.now().strftime("%Y-%m-%d")
+    cur.execute("INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s)",
+                (top[0], date_check))
+    conn.commit()
+    cur.execute("SELECT * FROM url_checks WHERE url_id = %s", (id, ))
+    bottom = cur.fetchone()
+    cur.close()
+    conn.close()
+    return render_template('page_tables.html',
+                           url_id=bottom[0],
+                           id=top[0],
+                           check_creation=bottom[6],
+                           date=top[2],
+                           name=top[1])
