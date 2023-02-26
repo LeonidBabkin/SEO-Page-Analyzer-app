@@ -12,6 +12,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from psycopg2.extras import NamedTupleCursor
 from page_analyzer.validation import validate_url
+from page_analyzer.status_validation import check_status
 
 
 load_dotenv()
@@ -119,17 +120,27 @@ def show_checks(id):
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
     top = cur.fetchone()
-    date_check = datetime.now().strftime("%Y-%m-%d")
-    cur.execute("INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s)",
-                (top[0], date_check))
-    conn.commit()
-    cur.execute("SELECT * FROM url_checks WHERE url_id = %s", (id, ))
-    bottom = cur.fetchone()
-    cur.close()
-    conn.close()
-    return render_template('page_tables.html',
-                           url_id=bottom[0],
-                           id=top[0],
-                           check_creation=bottom[6],
-                           date=top[2],
-                           name=top[1])
+    status_code = check_status(top[1])
+    if status_code == 'Произошла ошибка при проверке':
+        flash('Произошла ошибка при проверке', 'failure')
+        return redirect(url_for('show_url', id=top[0]))
+    else:
+        date_check = datetime.now().strftime("%Y-%m-%d")
+        cur.execute("INSERT INTO url_checks (url_id, status_code, created_at)"
+                    " VALUES (%s, %s, %s)",
+                    (top[0], status_code, date_check))
+        conn.commit()
+        cur.execute("SELECT * FROM url_checks WHERE url_id = %s"
+                    " ORDER BY created_at DESC", (id, ))
+        bottom = cur.fetchone()
+        print(bottom)
+        cur.close()
+        conn.close()
+        flash('Проверка прошла успешно', 'success')
+        return render_template('page_tables.html',
+                               url_id=bottom[0],
+                               id=top[0],
+                               check_creation=bottom[6],
+                               date=top[2],
+                               name=top[1],
+                               status=bottom[2])
