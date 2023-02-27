@@ -77,14 +77,16 @@
 	 <th>description</th>
          <th>Дата создания</th>
      </tr>
+      {% for row in check_data %}
       <tr>
-	  <td>{{ url_id }}</td>
-	  <td>{{ status }}</td>
-	  <td></td>
-	  <td></td>
-	  <td></td>
-          <td>{{ check_creation }}</td>
+	  <td>{{ row.id }}</td>
+	  <td>{{ row.status_code }}</td>
+	  <td>{{ row.h1 }}</td>
+	  <td>{{ row.title }}</td>
+	  <td>{{ row.description }}</td>
+          <td>{{ row.created_at }}</td>
       </tr>
+      {% endfor %}
        </tbody>
      </table>
    </div>

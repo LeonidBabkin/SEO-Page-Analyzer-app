@@ -60,7 +60,6 @@ def list_urls():  # a link 'сайты' which leads to the lst_urls.html
                 " AS checks_table"
                 " ON urls.id = checks_table.url_id ORDER BY id DESC;")
     records = cur.fetchall()
-    print(records)
     cur.close()
     conn.close()
     return render_template('lst_urls.html', records=records)
@@ -131,17 +130,15 @@ def show_checks(id):
                     " VALUES (%s, %s, %s)",
                     (top[0], status_code, date_check))
         conn.commit()
-        cur.execute("SELECT * FROM url_checks WHERE url_id = %s"
-                    " ORDER BY created_at DESC", (id, ))
-        bottom = cur.fetchone()
-        print(bottom)
+        cur.execute("SELECT * FROM url_checks WHERE url_checks.url_id = %s"
+                    " ORDER BY url_checks.id DESC", (id, ))
+        check_data = cur.fetchall()
+        print(check_data)
         cur.close()
         conn.close()
         flash('Проверка прошла успешно', 'success')
         return render_template('page_tables.html',
-                               url_id=bottom[0],
                                id=top[0],
-                               check_creation=bottom[6],
                                date=top[2],
                                name=top[1],
-                               status=bottom[2])
+                               check_data=check_data)
