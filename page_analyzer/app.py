@@ -55,11 +55,12 @@ def list_urls():  # a link 'сайты' which leads to the lst_urls.html
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("SELECT DISTINCT ON (id) * FROM urls LEFT"
-                " JOIN (SELECT url_id, created_at"
+                " JOIN (SELECT url_id, status_code, created_at"
                 " AS last_created FROM url_checks ORDER BY id DESC)"
                 " AS checks_table"
                 " ON urls.id = checks_table.url_id ORDER BY id DESC;")
     records = cur.fetchall()
+    print(records)
     cur.close()
     conn.close()
     return render_template('lst_urls.html', records=records)
