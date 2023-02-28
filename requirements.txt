@@ -6,3 +6,4 @@ MarkupSafe==2.1.2
 Werkzeug==2.2.3
 python-dotenv==0.21.1
 psycopg2-binary==2.9.5
+requests==2.22.0
