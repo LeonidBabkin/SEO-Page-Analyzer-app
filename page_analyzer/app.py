@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from psycopg2.extras import NamedTupleCursor
 from page_analyzer.validation import validate_url
 from page_analyzer.status_validation import check_status
+from page_analyzer.beautiful_soup import extract_htd
 
 
 load_dotenv()
@@ -126,14 +127,15 @@ def show_checks(id):
         return redirect(url_for('show_url', id=top[0]))
     else:
         date_check = datetime.now().strftime("%Y-%m-%d")
-        cur.execute("INSERT INTO url_checks (url_id, status_code, created_at)"
-                    " VALUES (%s, %s, %s)",
-                    (top[0], status_code, date_check))
+        h1, title, descr = extract_htd(top[1])  # extraction
+        cur.execute("INSERT INTO url_checks (url_id, status_code,"
+                    " h1, title, description, created_at)"
+                    " VALUES (%s, %s, %s, %s, %s, %s)",
+                    (top[0], status_code, h1, title, descr, date_check))
         conn.commit()
         cur.execute("SELECT * FROM url_checks WHERE url_checks.url_id = %s"
                     " ORDER BY url_checks.id DESC", (id, ))
-        check_data = cur.fetchall()
-        print(check_data)
+        data = cur.fetchall()
         cur.close()
         conn.close()
         flash('Проверка прошла успешно', 'success')
@@ -141,4 +143,4 @@ def show_checks(id):
                                id=top[0],
                                date=top[2],
                                name=top[1],
-                               check_data=check_data)
+                               check_data=data)
