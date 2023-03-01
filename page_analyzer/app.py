@@ -121,6 +121,7 @@ def show_checks(id):
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
     top = cur.fetchone()
+    print(top)
     status_code = check_status(top[1])
     if status_code == 'Произошла ошибка при проверке':
         flash('Произошла ошибка при проверке', 'failure')
