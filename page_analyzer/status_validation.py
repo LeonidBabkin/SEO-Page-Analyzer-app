@@ -8,8 +8,8 @@ def check_status(url):
                                  "Gecko/20100101 Firefox/60.0",
                    "Accept": "text/html,application/xhtml+xml,"
                              "application/xml;q=0.9,*/*;q=0.8"}
-    page = session.get(url, headers=headers)
-    page.raise_for_status()
-    status = page.status_code
+        page = session.get(url, headers=headers)
+        page.raise_for_status()
+        status = page.status_code
     except Exception:
         return 'Произошла ошибка при проверке'
