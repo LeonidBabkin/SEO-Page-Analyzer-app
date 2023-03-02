@@ -79,7 +79,7 @@ def hello_url():
 
     if valid_res is not None:
         flash(valid_res, 'error')
-        return redirect(url_for('hello_template'))
+        return redirect(url_for('hello_template')), 422
 
     entry = check_uniqueness(name)
     if entry is not None:
