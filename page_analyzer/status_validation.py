@@ -11,5 +11,6 @@ def check_status(url):
         page = session.get(url, headers=headers)
         page.raise_for_status()
         status = page.status_code
+        return status
     except Exception:
         return 'Произошла ошибка при проверке'
