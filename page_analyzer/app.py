@@ -72,7 +72,7 @@ def hello_url():
 
     if datum['url'] == '':
         flash('URL обязателен', 'error')
-        return redirect(url_for('hello_template'))
+        return redirect(url_for('hello_template')), 422
 
     name, date = url_entry(datum)
     valid_res = validate_url(name)
@@ -124,7 +124,7 @@ def show_checks(id):
     status_code = check_status(top[1])
     if status_code == 'Произошла ошибка при проверке':
         flash('Произошла ошибка при проверке', 'failure')
-        return redirect(url_for('show_url', id=top[0])), 422
+        return redirect(url_for('show_url', id=top[0]))
     else:
         date_check = datetime.now().strftime("%Y-%m-%d")
         h1, title, descr = extract_htd(top[1])  # extraction
