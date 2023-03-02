@@ -121,11 +121,10 @@ def show_checks(id):
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
     top = cur.fetchone()
-    print(top)
     status_code = check_status(top[1])
     if status_code == 'Произошла ошибка при проверке':
         flash('Произошла ошибка при проверке', 'failure')
-        return redirect(url_for('show_url', id=top[0]))
+        return redirect(url_for('show_url', id=top[0])), 422
     else:
         date_check = datetime.now().strftime("%Y-%m-%d")
         h1, title, descr = extract_htd(top[1])  # extraction
