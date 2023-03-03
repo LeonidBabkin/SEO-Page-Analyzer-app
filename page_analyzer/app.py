@@ -4,8 +4,8 @@ from flask import (Flask,
                    redirect,
                    url_for,
                    flash,
-                   get_flashed_messages,
-                   requests)
+                   get_flashed_messages)
+import requests
 import os
 from dotenv import load_dotenv
 import psycopg2
