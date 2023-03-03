@@ -22,6 +22,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 app = Flask(__name__)
+if __name__ == "__main__":
+    app.run()
 app.secret_key = SECRET_KEY
 
 
