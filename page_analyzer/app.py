@@ -69,22 +69,17 @@ def list_urls():  # a link 'сайты' which leads to the lst_urls.html
 @app.route('/urls', methods=['POST'])
 def hello_url():
     datum = request.form.to_dict()
-
     if datum['url'] == '':
         flash('URL обязателен', 'error')
         return redirect(url_for('hello_template'))
-
     name, date = url_entry(datum)
-       
     if validate_url(name):
         flash('Некорректный URL', 'error')
         return render_template('hello_template'), 422
-
     entry = check_uniqueness(name)
     if entry is not None:
         flash('Страница уже существует', 'success')
         return redirect(url_for('show_url', id=entry[0]))
-
     if entry is None:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor(cursor_factory=NamedTupleCursor)
