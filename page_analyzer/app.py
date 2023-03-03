@@ -117,8 +117,9 @@ def show_checks(id):
     cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
     top = cur.fetchone()
-    status_code = check_status(top[1])
-    if status_code == 'Произошла ошибка при проверке':
+    try:
+      status_code = check_status(top[1])
+    except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'failure')
         return redirect(url_for('show_url', id=top[0]))
     else:
