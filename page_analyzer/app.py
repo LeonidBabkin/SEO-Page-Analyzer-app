@@ -118,10 +118,10 @@ def show_checks(id):
     cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
     top = cur.fetchone()
     try:
-      status_code = check_status(top[1])
+        status_code = check_status(top[1])
     except requests.exceptions.RequestException:
-      flash('Произошла ошибка при проверке', 'failure')
-      return redirect(url_for('show_url', id=top[0]))
+        flash('Произошла ошибка при проверке', 'failure')
+        return redirect(url_for('show_url', id=top[0]))
     else:
         date_check = datetime.now().strftime("%Y-%m-%d")
         h1, title, descr = extract_htd(top[1])  # extraction
