@@ -19,6 +19,14 @@
     </div>
   </nav>
     </header>
+	    
+    {% with messages = get_flashed_messages(category_filter=['notification']) %}
+      {% if messages %}
+        {% for message in messages %}
+	  <div class="alert alert-success"> {{ message }} </div>
+	{% endfor %}
+      {% endif %}
+    {% endwith %}
 
 
     {% with messages = get_flashed_messages(category_filter=['success']) %}
