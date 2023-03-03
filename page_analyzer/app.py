@@ -1,144 +1,117 @@
-from flask import (Flask,
-                   render_template,
-                   request,
-                   redirect,
-                   url_for,
-                   flash,
-                   get_flashed_messages)
-import requests
-import os
-from dotenv import load_dotenv
+from flask import Flask, request, redirect, render_template, \
+    flash, url_for
 import psycopg2
+from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
 from urllib.parse import urlparse
-from psycopg2.extras import NamedTupleCursor
-from page_analyzer.validation import validate_url
-from page_analyzer.status_validation import check_status
-from page_analyzer.beautiful_soup import extract_htd
+from dotenv import load_dotenv
+import os
+import requests
+from page_analyzer.page import prepare_seo_data
+from validators.url import url
+
+
+def validate_url(site_url):
+    return not url(site_url) or len(site_url) > 255
 
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
-
-
 app = Flask(__name__)
-if __name__ == "__main__":
-    app.run()
 app.secret_key = SECRET_KEY
 
 
-def check_uniqueness(url):
-    conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute("SELECT * FROM urls WHERE name like %s ESCAPE ''",
-                (url,))
-    res = cur.fetchone()
-    cur.close()
-    conn.close()
-    return res
-
-
-def url_entry(datum):
-    datum = request.form.to_dict()
-    raw_url = urlparse(datum['url'])
-    whole_url = f'{raw_url.scheme}://{raw_url.hostname}'
+def add_to_url_checks_table(id, status_code, title, h1, description):
     date = datetime.now().strftime("%Y-%m-%d")
-    return whole_url, date
-
-
-@app.route("/")
-def hello_template():
-    data = {'url': ''}
-    messages = get_flashed_messages(with_categories=True)
-    return render_template('index.html', data=data, messages=messages)
-
-
-@app.route('/urls', methods=['GET'])  # here on the html page there's
-def list_urls():  # a link 'сайты' which leads to the lst_urls.html
     conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute("SELECT DISTINCT ON (id) * FROM urls LEFT"
-                " JOIN (SELECT url_id, status_code, created_at"
-                " AS last_created FROM url_checks ORDER BY id DESC)"
-                " AS checks_table"
-                " ON urls.id = checks_table.url_id ORDER BY id DESC;")
-    records = cur.fetchall()
-    cur.close()
-    conn.close()
-    return render_template('lst_urls.html', records=records)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute("INSERT INTO url_checks (url_id, status_code,"
+                           " title, h1, description, created_at) VALUES"
+                           "(%s, %s, %s, %s,  %s, %s)",
+                           (id, status_code, title, h1, description, date))
+            conn.commit()
 
 
-@app.route('/urls', methods=['POST'])
-def hello_url():
-    datum = request.form.to_dict()
-    if datum['url'] == '':
-        flash('URL обязателен', 'error')
-        return redirect(url_for('hello_template'))
-    name, date = url_entry(datum)
-    if validate_url(name):
-        flash('Некорректный URL', 'error')
+@app.route('/')
+def get_index():
+    return render_template(
+        'index.html')
+
+
+@app.route('/urls')
+def get_urls():
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute("SELECT DISTINCT ON (id) * FROM urls LEFT"
+                           " JOIN (SELECT url_id, status_code,"
+                           " created_at AS last_check_date FROM"
+                           " url_checks ORDER BY id DESC) AS checks ON"
+                           " urls.id = checks.url_id ORDER BY id DESC;")
+            site_list = cursor.fetchall()
+    return render_template(
+        'site_list.html',
+        site_list=site_list
+    )
+
+
+@app.post('/urls')
+def post_urls():
+    parse_url = urlparse(request.form.get("url"))
+    site_url = f'{parse_url.scheme}://{parse_url.hostname}'
+    if validate_url(site_url):
+        flash('Некорректный URL', 'danger')
         return render_template('index.html'), 422
-    entry = check_uniqueness(name)
-    if entry is not None:
-        flash('Страница уже существует', 'notification')
-        return redirect(url_for('show_url', id=entry[0]))
-    if entry is None:
-        conn = psycopg2.connect(DATABASE_URL)
-        cur = conn.cursor(cursor_factory=NamedTupleCursor)
-        cur.execute("INSERT INTO urls (name, created_at) VALUES (%s, %s)",
-                    (name, date))
-        conn.commit()
-        cur.close()
-        conn.close()
-        entry = check_uniqueness(name)
-        flash('Страница успешно добавлена', 'success')
-        return redirect(url_for('show_url', id=entry[0]))
-
-
-@app.route('/urls/<int:id>')
-def show_url(id):
     conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
-    entry = cur.fetchone()
-    cur.close()
-    conn.close()
-    messages = get_flashed_messages(with_categories=True)
-    return render_template('page_tables.html',
-                           id=entry[0],
-                           name=entry[1],
-                           date=entry[2],
-                           messages=messages)
-
-
-@app.route('/urls/<int:id>/checks', methods=['POST'])
-def show_checks(id):
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute('SELECT * FROM urls WHERE name = %s', (site_url,))
+            entry = cursor.fetchall()
+    if entry:
+        flash('Страница уже существует', 'info')
+        return redirect(url_for('get_url', id=entry[0][0]))
+    date = datetime.now().strftime("%Y-%m-%d")
     conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)
-    cur.execute("SELECT * FROM urls WHERE id = %s", (id, ))
-    top = cur.fetchone()
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute("INSERT INTO urls (name, created_at) "
+                           "VALUES (%s, %s)", (site_url, date))
+            conn.commit()
+            cursor.execute('SELECT id FROM urls WHERE name = %s', (site_url,))
+            [(id,)] = cursor.fetchall()
+    flash('Страница успешно добавлена', 'success')
+    return redirect(url_for('get_url', id=id))
+
+
+@app.post('/urls/<id>/checks')
+def post_url_check(id):
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
+            [(id, url, date)] = cursor.fetchall()
     try:
-        status_code = check_status(top[1])
+        status_code, title, h1, description = prepare_seo_data(url)
     except requests.exceptions.RequestException:
-        flash('Произошла ошибка при проверке', 'failure')
-        return redirect(url_for('show_url', id=top[0]))
-    else:
-        date_check = datetime.now().strftime("%Y-%m-%d")
-        h1, title, descr = extract_htd(top[1])  # extraction
-        cur.execute("INSERT INTO url_checks (url_id, status_code,"
-                    " h1, title, description, created_at)"
-                    " VALUES (%s, %s, %s, %s, %s, %s)",
-                    (top[0], status_code, h1, title, descr, date_check))
-        conn.commit()
-        cur.execute("SELECT * FROM url_checks WHERE url_checks.url_id = %s"
-                    " ORDER BY url_checks.id DESC", (id, ))
-        data = cur.fetchall()
-        cur.close()
-        conn.close()
-        flash('Проверка прошла успешно', 'success')
-        return render_template('page_tables.html',
-                               id=top[0],
-                               date=top[2],
-                               name=top[1],
-                               check_data=data)
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('get_url', id=id))
+    add_to_url_checks_table(id, status_code, title, h1, description)
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('get_url', id=id))
+
+
+@app.route('/urls/<id>')
+def get_url(id):
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
+            [(id, name, date)] = cursor.fetchall()
+            cursor.execute('SELECT * FROM url_checks WHERE url_id = %s '
+                           'ORDER BY id DESC', (id,))
+            site_checks = cursor.fetchall()
+    return render_template(
+        'single_site.html',
+        id=id, name=name, date=date, site_checks=site_checks)
