@@ -75,7 +75,7 @@ def hello_url():
     name, date = url_entry(datum)
     if validate_url(name):
         flash('Некорректный URL', 'error')
-        return render_template('hello_template'), 422
+        return render_template('index.html'), 422
     entry = check_uniqueness(name)
     if entry is not None:
         flash('Страница уже существует', 'success')
