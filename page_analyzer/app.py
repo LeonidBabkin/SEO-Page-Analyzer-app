@@ -75,11 +75,10 @@ def hello_url():
         return redirect(url_for('hello_template'))
 
     name, date = url_entry(datum)
-    valid_res = validate_url(name)
-
-    if valid_res is not None:
-        flash(valid_res, 'error')
-        return redirect(url_for('hello_template'))
+       
+    if validate_url(name):
+        flash('Некорректный URL', 'error')
+        return render_template('hello_template'), 422
 
     entry = check_uniqueness(name)
     if entry is not None:
