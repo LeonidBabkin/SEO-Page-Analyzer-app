@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block title %}Данные по {{ name }}{% endblock %}
+
+{% block content %}
+    <div class="flex-grow-1 container-lg mt-3">
+        <h1>Сайт: {{ name }}</h1>
+
+    <div class="mb-1">
+    <table class="table table-bordered table-hover text-nowrap table-responsive" data-test="url">
+        <tr>
+          <td>
+              ID
+          </td>
+          <td>
+              {{ id }}
+          </td>
+        </tr>
+        <tr>
+          <td>
+              Имя
+          </td>
+          <td>
+              {{ name }}
+          </td>
+        </tr>
+        <tr>
+          <td>
+              Дата создания
+          </td>
+          <td>
+              {{ date }}
+          </td>
+        </tr>
+    </table>
+    </div>
+
+    <h2 class="mt-5 pt-3 mb-3">Проверки</h2>
+    <form method="post" action="{{ url_for('post_url_check', id=id) }}">
+    <input type="submit" class="btn btn-primary" value="Запустить проверку">
+    </form>
+    <table class="table table-bordered table-hover mt-2" data-test="checks">
+    <tbody>
+    <tr>
+        <th>ID</th>
+        <th>Код ответа</th>
+        <th>h1</th>
+        <th>title</th>
+        <th>description</th>
+        <th>Дата создания</th>
+    </tr>
+
+     {% for check in site_checks %}
+      <tr>
+       <td>
+           {{ check.id }}
+       </td>
+       <td>
+           {% if check.status_code %}
+           {{ check.status_code }}
+           {% endif %}
+       </td>
+       <td>
+           {% if check.h1 %}
+           {{ check.h1 }}
+           {% endif %}
+       </td>
+       <td>
+           {% if check.title %}
+           {{ check.title }}
+           {% endif %}
+       </td>
+       <td>
+           {% if check.description %}
+           {{ check.description }}
+           {% endif %}
+       </td>
+       <td>
+           {{ check.created_at }}
+       </td>
+     </tr>
+     {% endfor %}
+    </tbody>
+    </table>
+    </div>
+
+{% endblock %}
