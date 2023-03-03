@@ -1,18 +1,17 @@
-from flask import Flask, request, redirect, render_template, \
-    flash, url_for
+from flask import (Flask,
+                   request,
+                   redirect,
+                   render_template,
+                   flash, url_for)
+import os
 import psycopg2
+import requests
 from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
 from urllib.parse import urlparse
 from dotenv import load_dotenv
-import os
-import requests
 from page_analyzer.page import get_data_bits
 from validators.url import url
-
-
-def validate_url(site_url):
-    return not url(site_url) or len(site_url) > 255
 
 
 load_dotenv()
@@ -20,6 +19,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+
+
+def validate_url(site_url):
+    return not url(site_url) or len(site_url) > 255
 
 
 def add_to_url_checks_table(id, status_code, title, h1, description):
