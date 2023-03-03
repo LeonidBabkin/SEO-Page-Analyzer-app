@@ -81,7 +81,7 @@ def hello_url():
         return render_template('index.html'), 422
     entry = check_uniqueness(name)
     if entry is not None:
-        flash('Страница уже существует', 'success')
+        flash('Страница уже существует', 'notification')
         return redirect(url_for('show_url', id=entry[0]))
     if entry is None:
         conn = psycopg2.connect(DATABASE_URL)
