@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def prepare_seo_data(url):
+def get_data_bits(url):
     session = requests.session()
     headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) "
                              "Gecko/20100101 Firefox/60.0",

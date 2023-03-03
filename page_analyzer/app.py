@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 import os
 import requests
-from page_analyzer.page import prepare_seo_data
+from page_analyzer.page import get_data_bits
 from validators.url import url
 
 
@@ -93,7 +93,7 @@ def post_url_check(id):
             cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
             [(id, url, date)] = cursor.fetchall()
     try:
-        status_code, title, h1, description = prepare_seo_data(url)
+        status_code, title, h1, description = get_data_bits(url)
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('get_url', id=id))
