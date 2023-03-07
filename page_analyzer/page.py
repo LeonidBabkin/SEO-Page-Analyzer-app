@@ -1,5 +1,6 @@
 import requests
 import psycopg2
+from datetime import datetime
 from psycopg2.extras import NamedTupleCursor
 from bs4 import BeautifulSoup
 
