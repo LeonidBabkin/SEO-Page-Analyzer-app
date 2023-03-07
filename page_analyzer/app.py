@@ -93,7 +93,7 @@ def post_url_check(id):
     flash('Страница успешно проверена', 'success')
     return redirect(url_for('get_url', id=id))
 
-  
+
 @app.route('/urls/<id>')
 def get_url(id):
     conn = psycopg2.connect(DATABASE_URL)
