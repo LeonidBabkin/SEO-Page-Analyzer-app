@@ -11,6 +11,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from page_analyzer.page import get_data_bits
+from page_analyzer.page import insert_into_url_checks
 from validators.url import url
 
 
@@ -23,18 +24,6 @@ app.secret_key = SECRET_KEY
 
 def validate_url(site_url):
     return not url(site_url) or len(site_url) > 255
-
-
-def add_to_url_checks_table(id, status_code, title, h1, description):
-    date = datetime.now().strftime("%Y-%m-%d")
-    conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute("INSERT INTO url_checks (url_id, status_code,"
-                           " title, h1, description, created_at) VALUES"
-                           "(%s, %s, %s, %s,  %s, %s)",
-                           (id, status_code, title, h1, description, date))
-            conn.commit()
 
 
 @app.route('/')
@@ -100,11 +89,11 @@ def post_url_check(id):
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('get_url', id=id))
-    add_to_url_checks_table(id, status_code, title, h1, description)
+    insert_into_url_checks(id, status_code, title, h1, description)
     flash('Страница успешно проверена', 'success')
     return redirect(url_for('get_url', id=id))
 
-
+  
 @app.route('/urls/<id>')
 def get_url(id):
     conn = psycopg2.connect(DATABASE_URL)
