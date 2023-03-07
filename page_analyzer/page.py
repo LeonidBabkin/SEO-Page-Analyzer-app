@@ -1,4 +1,6 @@
 import requests
+import psycopg2
+from psycopg2.extras import NamedTupleCursor
 from bs4 import BeautifulSoup
 
 
