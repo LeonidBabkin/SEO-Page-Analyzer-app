@@ -7,5 +7,7 @@ It is possible to check for a website SEO via [Page Analyzer](https://page-analy
 
 To install the app: 
 git clone https://github.com/LeonidBabkin/python-project-83
+
 cd python-project-83
+
 make install
