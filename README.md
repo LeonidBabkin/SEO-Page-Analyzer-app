@@ -2,4 +2,5 @@
 [![Actions Status](https://github.com/LeonidBabkin/python-project-83/workflows/hexlet-check/badge.svg)](https://github.com/LeonidBabkin/python-project-83/actions)
 <a href="https://codeclimate.com/github/LeonidBabkin/python-project-83/maintainability"><img src="https://api.codeclimate.com/v1/badges/470093a205d2036d5dca/maintainability" /></a>
 [![Python CI](https://github.com/LeonidBabkin/python-project-83/actions/workflows/python-app.yml/badge.svg)](https://github.com/LeonidBabkin/python-project-83/actions/workflows/python-app.yml)
+
 Deployment on render.com: https://page-analyzer-xyw6.onrender.com
