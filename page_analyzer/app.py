@@ -13,7 +13,8 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 from page_analyzer.page import get_data_bits
 from page_analyzer.sql_queries import (insert_into_url_checks,
-                                       select_all_sites)
+                                       select_all_sites,
+                                       select_certain_site)
 
 
 load_dotenv()
@@ -48,11 +49,7 @@ def post_urls():
     if validate_url(site_url):
         flash('Некорректный URL', 'danger')
         return render_template('index.html'), 422
-    conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute('SELECT * FROM urls WHERE name = %s', (site_url,))
-            entry = cursor.fetchall()
+    entry = select_certain_site()
     if entry:
         flash('Страница уже существует', 'info')
         return redirect(url_for('get_url', id=entry[0][0]))
