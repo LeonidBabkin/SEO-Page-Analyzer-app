@@ -35,10 +35,10 @@ def get_index():
 
 @app.route('/urls')
 def get_urls():
-  site_list = select_all_sites()
-  return render_template(
-       'site_list.html',
-       site_list=site_list)
+    site_list = select_all_sites()
+    return render_template(
+        'site_list.html',
+        site_list=site_list)
 
 
 @app.post('/urls')
