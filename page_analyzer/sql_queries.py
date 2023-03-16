@@ -62,3 +62,18 @@ def insert_select_from_urls(site_url):
     cursor.close()
     conn.close()
     return output
+
+
+def select_by_id_from_urls(id):
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
+            [(id, url, date)] = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [(id, url, date)]
+            
+
+
+
