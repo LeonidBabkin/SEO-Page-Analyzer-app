@@ -6,13 +6,15 @@ from flask import (Flask,
 import os
 import psycopg2
 import requests
+from validators.url import url
 from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from page_analyzer.page import get_data_bits
-from page_analyzer.sql_queries import insert_into_url_checks
-from validators.url import url
+from page_analyzer.sql_queries import (insert_into_url_checks,
+                                       select_all_sites)
+
 
 
 load_dotenv()
@@ -34,19 +36,10 @@ def get_index():
 
 @app.route('/urls')
 def get_urls():
-    conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute("SELECT DISTINCT ON (id) * FROM urls LEFT"
-                           " JOIN (SELECT url_id, status_code,"
-                           " created_at AS last_check_date FROM"
-                           " url_checks ORDER BY id DESC) AS checks ON"
-                           " urls.id = checks.url_id ORDER BY id DESC;")
-            site_list = cursor.fetchall()
-    return render_template(
-        'site_list.html',
-        site_list=site_list
-    )
+  site_list = select_all_sites()
+  return render_template(
+      'site_list.html',
+      site_list=site_list)
 
 
 @app.post('/urls')
