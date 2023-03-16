@@ -58,7 +58,7 @@ def insert_select_from_urls(site_url):
                            "VALUES (%s, %s)", (site_url, date))
             conn.commit()
             cursor.execute('SELECT id FROM urls WHERE name = %s', (site_url,))
-            output = cursor.fetchall()       
+            output = cursor.fetchall()
     cursor.close()
     conn.close()
     return output
