@@ -32,3 +32,12 @@ def select_all_sites():
                            " urls.id = checks.url_id ORDER BY id DESC;")
             site_list = cursor.fetchall()
             return site_list
+        
+        
+def select_certain_site():
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute('SELECT * FROM urls WHERE name = %s', (site_url,))
+            entry = cursor.fetchall()
+            return entry
