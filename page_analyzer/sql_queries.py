@@ -84,6 +84,6 @@ def select_url_checks_data(id):
             cursor.execute('SELECT * FROM url_checks WHERE url_id = %s '
                            'ORDER BY id DESC', (id,))
             site_checks = cursor.fetchall()
-     cursor.close()
+    cursor.close()
     conn.close()
     return [(id, name, date)], site_checks
