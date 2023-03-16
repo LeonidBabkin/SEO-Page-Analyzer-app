@@ -49,7 +49,7 @@ def post_urls():
     if validate_url(site_url):
         flash('Некорректный URL', 'danger')
         return render_template('index.html'), 422
-    entry = select_certain_site()
+    entry = select_certain_site(site_url)
     if entry:
         flash('Страница уже существует', 'info')
         return redirect(url_for('get_url', id=entry[0][0]))
