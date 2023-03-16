@@ -20,7 +20,7 @@ def insert_into_url_checks(id, status_code, title, h1, description):
                            (id, status_code, title, h1, description, date))
             conn.commit()
 
-          
+
 def select_all_sites():
     conn = psycopg2.connect(DATABASE_URL)
     with conn:
