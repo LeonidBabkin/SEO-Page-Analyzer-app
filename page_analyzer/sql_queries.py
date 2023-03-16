@@ -73,7 +73,3 @@ def select_by_id_from_urls(id):
     cursor.close()
     conn.close()
     return [(id, url, date)]
-            
-
-
-
