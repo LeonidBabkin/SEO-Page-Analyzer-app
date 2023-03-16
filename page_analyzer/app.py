@@ -14,7 +14,8 @@ from page_analyzer.page import get_data_bits
 from page_analyzer.sql_queries import (insert_into_url_checks,
                                        select_all_sites,
                                        select_certain_site,
-                                       insert_select_from_urls)
+                                       insert_select_from_urls,
+                                       select_by_id_from_urls)
 
 
 load_dotenv()
@@ -60,11 +61,7 @@ def post_urls():
 
 @app.post('/urls/<id>/checks')
 def post_url_check(id):
-    conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
-            [(id, url, date)] = cursor.fetchall()
+    [(id, url, date)] = select_by_id_from_urls(id)
     try:
         status_code, title, h1, description = get_data_bits(url)
     except requests.exceptions.RequestException:
