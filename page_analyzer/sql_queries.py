@@ -32,9 +32,9 @@ def select_all_sites():
                            " urls.id = checks.url_id ORDER BY id DESC;")
             site_list = cursor.fetchall()
             return site_list
-        
-        
-def select_certain_site():
+  
+ 
+def select_certain_site(site_url):
     conn = psycopg2.connect(DATABASE_URL)
     with conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
