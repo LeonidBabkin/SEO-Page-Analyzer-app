@@ -54,17 +54,9 @@ def post_urls():
     if entry:
         flash('Страница уже существует', 'info')
         return redirect(url_for('get_url', id=entry[0][0]))
-    date = datetime.now().strftime("%Y-%m-%d")
-    conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute("INSERT INTO urls (name, created_at) "
-                           "VALUES (%s, %s)", (site_url, date))
-            conn.commit()
-            cursor.execute('SELECT id FROM urls WHERE name = %s', (site_url,))
-            [(id,)] = cursor.fetchall()
+    output = insert_select_from_urls(site_url)
     flash('Страница успешно добавлена', 'success')
-    return redirect(url_for('get_url', id=id))
+    return redirect(url_for('get_url', id=output[0]))
 
 
 @app.post('/urls/<id>/checks')
