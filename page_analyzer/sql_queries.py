@@ -18,8 +18,8 @@ def insert_into_url_checks(id, status_code, title, h1, description):
                            " title, h1, description, created_at) VALUES"
                            "(%s, %s, %s, %s,  %s, %s)",
                            (id, status_code, title, h1, description, date))
-            conn.commit()
-            conn.close()
+    conn.commit()
+    conn.close()
 
 
 def select_all_sites():
@@ -32,8 +32,8 @@ def select_all_sites():
                            " url_checks ORDER BY id DESC) AS checks ON"
                            " urls.id = checks.url_id ORDER BY id DESC;")
             site_list = cursor.fetchall()
-            conn.close()
-            return site_list
+    conn.close()
+    return site_list
 
 
 def select_certain_site(site_url):
@@ -42,5 +42,5 @@ def select_certain_site(site_url):
         with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
             cursor.execute('SELECT * FROM urls WHERE name = %s', (site_url,))
             entry = cursor.fetchall()
-            conn.close()
-            return entry
+    conn.close()
+    return entry
