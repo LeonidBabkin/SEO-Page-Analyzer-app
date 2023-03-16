@@ -86,4 +86,4 @@ def select_url_checks_data(id):
             site_checks = cursor.fetchall()
      cursor.close()
     conn.close()
-    return [(id, url, date)]
+    return [(id, name, date)], site_checks
