@@ -11,7 +11,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from page_analyzer.page import get_data_bits
-from page_analyzer.page import insert_into_url_checks
+from page_analyzer.sql_queries import insert_into_url_checks
 from validators.url import url
 
 
