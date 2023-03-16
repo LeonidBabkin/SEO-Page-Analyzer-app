@@ -61,7 +61,7 @@ def post_urls():
                            "VALUES (%s, %s)", (site_url, date))
             conn.commit()
             cursor.execute('SELECT id FROM urls WHERE name = %s', (site_url,))
-            [(id,)] = cursor.fetchall()
+            [(id,)] = cursor.fetchone()
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', id=id))
 

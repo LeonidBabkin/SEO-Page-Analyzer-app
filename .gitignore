@@ -4,3 +4,5 @@ dist
 coverage.xml
 .coverage
 .env
+__pycache__
+/page_analyzer/__pycache__/
