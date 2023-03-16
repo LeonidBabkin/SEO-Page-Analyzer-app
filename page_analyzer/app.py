@@ -1,13 +1,11 @@
+import os
+import requests
 from flask import (Flask,
                    request,
                    redirect,
                    render_template,
                    flash, url_for)
-import os
-import psycopg2
-import requests
 from validators.url import url
-from psycopg2.extras import NamedTupleCursor
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from page_analyzer.page import get_data_bits
