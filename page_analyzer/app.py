@@ -75,7 +75,7 @@ def post_url_check(id):
 
 @app.route('/urls/<id>')
 def get_url(id):
-    [(id, name, date)], site_checks = select_url_checks_data(id):
+    [(id, name, date)], site_checks = select_url_checks_data(id)
     return render_template(
         'single_site.html',
         id=id, name=name, date=date, site_checks=site_checks)
