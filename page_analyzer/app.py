@@ -37,8 +37,8 @@ def get_index():
 def get_urls():
   site_list = select_all_sites()
   return render_template(
-      'site_list.html',
-      site_list=site_list)
+       'site_list.html',
+       site_list=site_list)
 
 
 @app.post('/urls')
