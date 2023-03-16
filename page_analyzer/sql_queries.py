@@ -73,3 +73,17 @@ def select_by_id_from_urls(id):
     cursor.close()
     conn.close()
     return [(id, url, date)]
+
+
+def select_url_checks_data(id):
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
+            [(id, name, date)] = cursor.fetchall()
+            cursor.execute('SELECT * FROM url_checks WHERE url_id = %s '
+                           'ORDER BY id DESC', (id,))
+            site_checks = cursor.fetchall()
+     cursor.close()
+    conn.close()
+    return [(id, url, date)]
