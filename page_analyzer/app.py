@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 from page_analyzer.page import get_data_bits
 from page_analyzer.sql_queries import (insert_into_url_checks,
                                        select_all_sites,
-                                       select_certain_site)
+                                       select_certain_site,
+                                       insert_select_from_urls)
 
 
 load_dotenv()
