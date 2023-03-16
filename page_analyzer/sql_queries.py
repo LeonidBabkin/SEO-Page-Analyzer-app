@@ -19,3 +19,16 @@ def insert_into_url_checks(id, status_code, title, h1, description):
                            "(%s, %s, %s, %s,  %s, %s)",
                            (id, status_code, title, h1, description, date))
             conn.commit()
+
+          
+def select_all_sites():
+    conn = psycopg2.connect(DATABASE_URL)
+    with conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+            cursor.execute("SELECT DISTINCT ON (id) * FROM urls LEFT"
+                           " JOIN (SELECT url_id, status_code,"
+                           " created_at AS last_check_date FROM"
+                           " url_checks ORDER BY id DESC) AS checks ON"
+                           " urls.id = checks.url_id ORDER BY id DESC;")
+            site_list = cursor.fetchall()
+            return site_list
