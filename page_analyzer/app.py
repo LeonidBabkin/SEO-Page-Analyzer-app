@@ -15,7 +15,8 @@ from page_analyzer.sql_queries import (insert_into_url_checks,
                                        select_all_sites,
                                        select_certain_site,
                                        insert_select_from_urls,
-                                       select_by_id_from_urls)
+                                       select_by_id_from_urls,
+                                       select_url_checks_data)
 
 
 load_dotenv()
@@ -74,14 +75,7 @@ def post_url_check(id):
 
 @app.route('/urls/<id>')
 def get_url(id):
-    conn = psycopg2.connect(DATABASE_URL)
-    with conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-            cursor.execute('SELECT * FROM urls WHERE id = %s', (id,))
-            [(id, name, date)] = cursor.fetchall()
-            cursor.execute('SELECT * FROM url_checks WHERE url_id = %s '
-                           'ORDER BY id DESC', (id,))
-            site_checks = cursor.fetchall()
+    [(id, name, date)], site_checks = select_url_checks_data(id):
     return render_template(
         'single_site.html',
         id=id, name=name, date=date, site_checks=site_checks)
