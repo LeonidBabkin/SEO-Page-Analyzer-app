@@ -7,11 +7,13 @@ Project description:
 It is possible to check for a website SEO via [Page Analyzer](https://page-analyzer-xyw6.onrender.com).
 This app is a simple url analyzer. You get a status code and the content of meta tags: title, h1, description.
 
+
 To install the app: 
 - git clone https://github.com/LeonidBabkin/python-project-83
 - cd python-project-83
 - make install
 - make start
+
 
 System requirements:
 - Linux
